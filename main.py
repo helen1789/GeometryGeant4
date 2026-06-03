@@ -5,12 +5,10 @@ def parse_gdml(path):
     tree = ET.parse(path) if isinstance(path, str) else ET.ElementTree(ET.fromstring(path.read()))
     root = tree.getroot()
 
-    # pega os sólidos definidos
     solids = {}
     for solid in root.find("solids"):
         solids[solid.get("name")] = solid
 
-    # pega posições definidas
     positions = {}
     defines = root.find("define")
     if defines:
@@ -60,7 +58,7 @@ def tessellate(solid):
         return tessellate_tube(solid)
     elif tag == "sphere":
         return tessellate_sphere(solid)
-    return None  # sólido não suportado ainda
+    return None 
 
 
 def tessellate_box(solid):
@@ -97,7 +95,6 @@ def tessellate_tube(solid):
     for s in range(segs):
         a0 = 2 * math.pi * s / segs
         a1 = 2 * math.pi * (s + 1) / segs
-        # face lateral externa
         base = len(verts) // 3
         verts += [
             math.cos(a0)*rmax, math.sin(a0)*rmax, -hz,
@@ -108,7 +105,6 @@ def tessellate_tube(solid):
         idxs += [base, base+1, base+2, base, base+2, base+3]
 
         if rmin > 0:
-            # face lateral interna
             base = len(verts) // 3
             verts += [
                 math.cos(a0)*rmin, math.sin(a0)*rmin, -hz,
@@ -118,7 +114,6 @@ def tessellate_tube(solid):
             ]
             idxs += [base, base+2, base+1, base, base+3, base+2]
 
-        # tampas (top e bottom)
         for z, sign in [(-hz, -1), (hz, 1)]:
             base = len(verts) // 3
             verts += [
